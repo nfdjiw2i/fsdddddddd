@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STALZONE Аукцион - Реальное время</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #e94560;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .category-select {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .category-select option {
+            background: #16213e;
+            color: #fff;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+        }
+
+        .auction-table {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(233, 69, 96, 0.2);
+            font-weight: bold;
+            color: #e94560;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            align-items: center;
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-name {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .price {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .buyout {
+            color: #ffd93d;
+            font-weight: bold;
+        }
+
+        .seller {
+            color: #95a5a6;
+        }
+
+        .timer {
+            color: #e94560;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #e94560;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .online {
+            color: #4ecdc4;
+        }
+
+        .offline {
+            color: #e94560;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        <span class="offline">● Отключено</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏪 STALZONE Аукцион</h1>
+            <p>Мониторинг аукциона в реальном времени</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalLots">0</div>
+                    <div class="stat-label">Всего лотов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastUpdate">--:--:--</div>
+                    <div class="stat-label">Последнее обновление</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="filteredCount">0</div>
+                    <div class="stat-label">Показано</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Поиск предметов..." oninput="filterLots()">
+                <select class="category-select" id="categorySelect" onchange="filterLots()">
+                    <option value="">Все категории</option>
+                    <option value="weapon">Оружие</option>
+                    <option value="armor">Броня</option>
+                    <option value="ammo">Патроны</option>
+                    <option value="meds">Медикаменты</option>
+                    <option value="artifacts">Артефакты</option>
+                    <option value="resources">Ресурсы</option>
+                    <option value="other">Другое</option>
+                </select>
+                <button class="btn" onclick="filterLots()">🔍 Найти</button>
+            </div>
+        </div>
+
+        <div class="auction-table" id="auctionTable">
+            <div class="table-header">
+                <div>#</div>
+                <div>Название</div>
+                <div>Текущая цена</div>
+                <div>Выкуп</div>
+                <div>Продавец</div>
+                <div>До конца</div>
+                <div>Статус</div>
+            </div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Загрузка данных аукциона...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let allLots = [];
+        let filteredLots = [];
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('WebSocket подключен');
+                document.getElementById('connectionStatus').innerHTML = '<span class="online">● Подключено</span>';
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'auction_update') {
+                        allLots = message.data.lots || [];
+                        updateStats(message.data);
+                        filterLots();
+                    }
+                } catch (error) {
+                    console.error('Ошибка обработки сообщения:', error);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket отключен, переподключение через 5 секунд...');
+                document.getElementById('connectionStatus').innerHTML = '<span class="offline">● Отключено</span>';
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('Ошибка WebSocket:', error);
+                document.getElementById('connectionStatus').innerHTML = '<span class="offline">● Ошибка</span>';
+            };
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalLots').textContent = data.totalLots || allLots.length;
+            
+            if (data.lastUpdate) {
+                const date = new Date(data.lastUpdate);
+                document.getElementById('lastUpdate').textContent = date.toLocaleTimeString();
+            }
+        }
+
+        function filterLots() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categorySelect').value.toLowerCase();
+
+            filteredLots = allLots.filter(lot => {
+                const name = (lot.name || lot.item_name || '').toLowerCase();
+                const lotCategory = (lot.category || lot.type || '').toLowerCase();
+
+                const matchesSearch = !searchQuery || name.includes(searchQuery);
+                const matchesCategory = !category || lotCategory.includes(category);
+
+                return matchesSearch && matchesCategory;
+            });
+
+            document.getElementById('filteredCount').textContent = filteredLots.length;
+            renderLots(filteredLots);
+        }
+
+        function renderLots(lots) {
+            const tableContainer = document.getElementById('auctionTable');
+            const headerHtml = `
+                <div class="table-header">
+                    <div>#</div>
+                    <div>Название</div>
+                    <div>Текущая цена</div>
+                    <div>Выкуп</div>
+                    <div>Продавец</div>
+                    <div>До конца</div>
+                    <div>Статус</div>
+                </div>
+            `;
+
+            if (lots.length === 0) {
+                tableContainer.innerHTML = headerHtml + '<div class="no-results">🔍 Ничего не найдено</div>';
+                return;
+            }
+
+            const rowsHtml = lots.slice(0, 100).map((lot, index) => {
+                const name = lot.name || lot.item_name || 'Неизвестный предмет';
+                const currentBid = lot.current_bid || lot.price || 0;
+                const buyout = lot.buyout || lot.buyout_price || 0;
+                const seller = lot.seller || lot.seller_name || 'Неизвестно';
+                const endTime = lot.end_time || lot.expires_at;
+                const category = lot.category || lot.type || '';
+
+                let timeLeft = '';
+                if (endTime) {
+                    const end = new Date(endTime);
+                    const now = new Date();
+                    const diff = end - now;
+
+                    if (diff > 0) {
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        timeLeft = `${hours}ч ${minutes}м`;
+                    } else {
+                        timeLeft = 'Завершено';
+                    }
+                } else {
+                    timeLeft = '24ч+';
+                }
+
+                const statusText = lot.status || 'Активен';
+                const statusClass = statusText === 'Активен' ? 'status-badge' : '';
+
+                return `
+                    <div class="table-row">
+                        <div>${index + 1}</div>
+                        <div class="item-name">${escapeHtml(name)}</div>
+                        <div class="price">${formatPrice(currentBid)} ₽</div>
+                        <div class="buyout">${formatPrice(buyout)} ₽</div>
+                        <div class="seller">${escapeHtml(seller)}</div>
+                        <div class="timer">${timeLeft}</div>
+                        <div><span class="${statusClass}">${statusText}</span></div>
+                    </div>
+                `;
+            }).join('');
+
+            tableContainer.innerHTML = headerHtml + rowsHtml;
+        }
+
+        function formatPrice(price) {
+            if (!price || price === 0) return '0';
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        connectWebSocket();
+
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html>
